@@ -47,8 +47,6 @@ co(function *(){
     } else {
       console.log(colors.help(response.message.yellow));
 
-      // console.log('calling acquire token with device code');
-
       context.acquireTokenWithDeviceCode(resource, clientId, response, function (err, tokenResponse) {
         if (err) {
           console.log('error happens when acquiring token with device code');
@@ -57,70 +55,60 @@ co(function *(){
         else {
           authHeader = tokenResponse['accessToken'];
           console.log(colors.info("Got a token:" + authHeader));
+          console.log(colors.info(""));
+          console.log(colors.info("http://bit.ly/AzureDeviceAuth"));
 
-          var msdn = function(){
-            requestURL = "https://management.azure.com/subscriptions/" + subscriptionId + "/providers/Microsoft.Commerce/RateCard?api-version=2015-06-01-preview&$filter=OfferDurableId eq 'MS-AZR-0149P' and Currency eq 'USD' and Locale eq 'en-US' and RegionInfo eq 'US'"
-            console.log(requestURL);
-            rest.get(requestURL, {accessToken:authHeader}).on('complete',function(result) {
-              console.log(result);
-            });
+          // var getrates = function(deal, data){
+          //   requestURL = "https://management.azure.com/subscriptions/"
+          //     + subscriptionId
+          //     + "/providers/Microsoft.Commerce/RateCard?api-version=2015-06-01-preview&$filter=OfferDurableId eq '"
+          //     + deal
+          //     + "' and Currency eq 'USD' and Locale eq 'en-US' and RegionInfo eq 'US'"
+          //
+          //   rest.get(requestURL, {accessToken:authHeader})
+          //     .on('complete',function(result) {
+          //       data = result
+          //       console.log(data);
+          //     });
+          // };
+
+          var getUrl = function(subscriptionId, deal){
+            requestURL = "https://management.azure.com/subscriptions/"
+            + subscriptionId
+            + "/providers/Microsoft.Commerce/RateCard?api-version=2015-06-01-preview&$filter=OfferDurableId eq '"
+            + deal
+            + "' and Currency eq 'USD' and Locale eq 'en-US' and RegionInfo eq 'US'"
+
+            return requestURL;
           }
-          
-          var replServer = repl.start({
-            prompt: "baug > ".yellow,
+
+          msdnUrl = getUrl(subscriptionId, "MS-AZR-0149P");
+          paygUrl = getUrl(subscriptionId, "MS-AZR-0003P");
+          var payg = "";
+          var msdn = "";
+
+          console.log("Getting MSDN rates...")
+          rest.get(msdnUrl, {accessToken:authHeader})
+          .on('complete',function(result) {
+            msdn = result
+
+            console.log("Getting PAYG rates...")
+
+            rest.get(paygUrl, {accessToken:authHeader})
+            .on('complete',function(result) {
+              payg = result
+
+              var replServer = repl.start({
+                prompt: "baug > ".yellow,
+              });
+
+              replServer.context.msdn = msdn;
+              replServer.context.payg = payg;
+
+            });
           });
-
-          replServer.context.msdn = msdn;
-
-
-
-
         }
       });
     }
   });
-
-
-
 });
-
-
-//
-// program
-// .arguments('<tenantId> <clientId> <subscriptionId>')
-// .action(function(tenantId, clientId, subscriptionId, user, pass) {
-//
-//   var resource="https://management.azure.com/";
-//   var authURL="https://login.windows.net/" + tenantId;
-//   var context=new AuthenticationContext(authURL);
-//
-//   var cache = new adal.MemoryCache();
-//
-//   var authorityHostUrl ='https://login.microsoftonline.com';
-//   var context = new AuthenticationContext(authURL, null, cache);
-//   context.acquireUserCode(resource, clientId, 'es-mx', function (err, response) {
-//     if (err) {
-//       console.log('well that didn\'t work: ' + err.stack);
-//     } else {
-//       console.log(response);
-//       console.log('calling acquire token with device code');
-//       context.acquireTokenWithDeviceCode(resource, clientId, response, function (err, tokenResponse) {
-//         if (err) {
-//           console.log('error happens when acquiring token with device code');
-//           console.log(err);
-//         }
-//         else {
-//           authHeader = tokenResponse['accessToken'];
-//
-//           requestURL = "https://management.azure.com/subscriptions/" + subscriptionId + "/providers/Microsoft.Commerce/RateCard?api-version=2015-06-01-preview&$filter=OfferDurableId eq 'MS-AZR-0149P' and Currency eq 'USD' and Locale eq 'en-US' and RegionInfo eq 'US'"
-//           console.log(requestURL);
-//           rest.get(requestURL, {accessToken:authHeader}).on('complete',function(result) {
-//             console.log(result);
-//           });
-//         }
-//       });
-//     }
-//   });
-//
-// })
-// .parse(process.argv);
