@@ -1,0 +1,31 @@
+{
+  "name": "baug-billing-console",
+  "version": "1.0.0",
+  "description": "A command line tool for exploring the Azure Rate Card API",
+  "main": "index.js",
+  "bin": {
+    "baug-billing": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/merbla/baug-billing-console.git"
+  },
+  "author": "Matthew Erbs",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/merbla/baug-billing-console/issues"
+  },
+  "homepage": "https://github.com/merbla/baug-billing-console#readme",
+  "dependencies": {
+    "adal-node": "^0.1.17",
+    "co": "^4.6.0",
+    "co-prompt": "^1.0.0",
+    "colors": "^1.1.2",
+    "commander": "^2.9.0",
+    "node-rest-client": "^1.8.0",
+    "restler": "^3.4.0"
+  }
+}
