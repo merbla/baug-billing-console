@@ -9,6 +9,8 @@ var Client=require('node-rest-client').Client;
 var rest=require('restler');
 var _ = require('lodash');
 var waitUntil = require('wait-until');
+var jsonfile = require('jsonfile')
+var util = require('util')
 
 var AuthenticationContext= adal.AuthenticationContext;
 
@@ -87,10 +89,9 @@ co(function *(){
 
           var currentData = ""
 
-
-          var compute = function(){
+          var vms = function(){
             var storageData = _.filter(payg.Meters, function(o) {
-              return  (o.MeterCategory.indexOf("Compute") > -1) || (o.MeterSubCategory.indexOf("Compute") > -1)
+              return  (o.MeterCategory.indexOf("Virtual Machines") > -1)
             });
 
             _.each(storageData, function(entry) {
@@ -110,6 +111,12 @@ co(function *(){
               });
             });
           };
+
+          var writeMeters = function(){
+            jsonfile.writeFileSync('payg.json', payg);
+            jsonfile.writeFileSync('bizspark.json', bizspark);
+            jsonfile.writeFileSync('msdn.json', msdn);
+          }
 
           var storage = function(){
             var storageData = _.filter(payg.Meters, function(o) {
@@ -161,32 +168,32 @@ co(function *(){
 
 
           waitUntil()
-              .interval(100)
-              .times(60)
-              .condition(function() {
-                  return bizsparkDone && msdnDone && paygDone;
-              })
-              .done(function(result) {
+          .interval(100)
+          .times(60)
+          .condition(function() {
+            return bizsparkDone && msdnDone && paygDone;
+          })
+          .done(function(result) {
 
-                var replServer = repl.start({
-                  prompt: "baug > ".yellow,
-                });
+            var replServer = repl.start({
+              prompt: "baug > ".yellow,
+            });
 
-                replServer.context.msdn = msdn;
-                replServer.context.payg = payg;
-                replServer.context.bizspark = bizspark;
-                replServer.context.currentData = currentData;
+            replServer.context.msdn = msdn;
+            replServer.context.payg = payg;
+            replServer.context.bizspark = bizspark;
+            replServer.context.currentData = currentData;
 
-                replServer.context.msdnUrl = msdnUrl;
-                replServer.context.paygUrl = paygUrl;
-                replServer.context.bizsparkUrl = bizsparkUrl;
+            replServer.context.msdnUrl = msdnUrl;
+            replServer.context.paygUrl = paygUrl;
+            replServer.context.bizsparkUrl = bizsparkUrl;
 
-                replServer.context.storage = storage; //hard coded to PAYG
-                replServer.context.compute = compute; //hard coded to PAY
+            replServer.context.storage = storage; //hard coded to PAYG
+            replServer.context.vms = vms; //hard coded to PAYG ++--
 
-                replServer.context.offerUrl = "https://azure.microsoft.com/en-us/support/legal/offer-details/";
-
-              });
+            replServer.context.offerUrl = "https://azure.microsoft.com/en-us/support/legal/offer-details/";
+            writeMeters()
+          });
         }
       });
     }

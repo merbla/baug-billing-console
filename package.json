@@ -25,6 +25,7 @@
     "co-prompt": "^1.0.0",
     "colors": "^1.1.2",
     "commander": "^2.9.0",
+    "jsonfile": "^2.2.3",
     "lodash": "^4.2.1",
     "node-rest-client": "^1.8.0",
     "repl": "^0.1.3",
