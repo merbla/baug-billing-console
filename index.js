@@ -31,7 +31,7 @@ colors.setTheme({
 var debug = function(str){
   console.log(colors.debug(str));
 }
-  
+
 co(function *(){
   clientId = yield prompt('Enter your Azure AD Client id: '.prompt);
   tenantId = yield prompt('Enter your Tenant Domain id: '.prompt);
@@ -90,7 +90,7 @@ co(function *(){
 
           var compute = function(){
             var storageData = _.filter(payg.Meters, function(o) {
-              return  (o.MeterCategory.indexOf("Storage") > -1) || (o.MeterSubCategory.indexOf("Storage") > -1)
+              return  (o.MeterCategory.indexOf("Compute") > -1) || (o.MeterSubCategory.indexOf("Compute") > -1)
             });
 
             _.each(storageData, function(entry) {
@@ -161,8 +161,8 @@ co(function *(){
 
 
           waitUntil()
-              .interval(500)
-              .times(40)
+              .interval(100)
+              .times(60)
               .condition(function() {
                   return bizsparkDone && msdnDone && paygDone;
               })
